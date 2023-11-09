@@ -12,7 +12,16 @@ class GameEngine extends StatefulWidget {
 class GameState extends State<GameEngine> {
 
   List<String> displayXO = ['','','','','','','','',''];
-  
+  List<List<int>> winPatterns = [
+  [0, 1, 2], // Top row
+  [3, 4, 5], // Middle row
+  [6, 7, 8], // Bottom row
+  [0, 3, 6], // Left column
+  [1, 4, 7], // Middle column
+  [2, 5, 8], // Right column
+  [0, 4, 8], // Diagonal from top-left to bottom-right
+  [2, 4, 6], // Diagonal from top-right to bottom-left
+];
 
   String result = " ";
 
@@ -59,7 +68,7 @@ class GameState extends State<GameEngine> {
 
            turnO = !turnO;
            filledBox++;
-           checkedWinner();
+           checkWinner();
         }
        
       } else if (turnO == false && (displayXO[index] == "" && displayXO[index] != '0' && displayXO[index] != "X")) {
@@ -69,62 +78,23 @@ class GameState extends State<GameEngine> {
           displayXO[index] = "X";
           turnO = !turnO;
           filledBox++;
-          checkedWinner();
+          checkWinner();
         }
       }
       
     });
   }
 
-  void checkedWinner()
+   void checkWinner()
   {
-    if(displayXO[0] == displayXO[1] && displayXO[0] == displayXO[2] && displayXO[0] != "") {
-      setState(() {
-        result = "player" +" "+ displayXO[0]+" " + "wins";
-      });
+    for (var winPattern in winPatterns) {
+      if (displayXO[winPattern[0]] == displayXO[winPattern[1]] && displayXO[winPattern[1]] == displayXO[winPattern[2]] && displayXO[winPattern[0]] != "") {
+        result = "Player "+ " " + displayXO[winPattern[0]] + " " + " wins";
+      }
     }
-    if(displayXO[3] == displayXO[4] && displayXO[3] == displayXO[5] && displayXO[3] != "") {
-      setState(() {
-        result = "player" +" "+ displayXO[3]+" " + "wins";
-      });
-    }
-    if(displayXO[6] == displayXO[7] && displayXO[6] == displayXO[8] && displayXO[6] != "") {
-      setState(() {
-        result = "player" +" "+ displayXO[6]+" " + "wins";
-      });
-    }
-
-    if(displayXO[0] == displayXO[4] && displayXO[0] == displayXO[8] && displayXO[0] != "") {
-      setState(() {
-        result = "PLayer " + " " + displayXO[0] + " "+ "Wins";
-      });
-    }
-    if (displayXO[2] == displayXO[4] && displayXO[2] == displayXO[6] &&  displayXO[2] != "") {
-      setState(() {
-        result = "PLayer "+ " "+ displayXO[2] + " " + "Wins";
-      });
-    }
-    if (displayXO[0] == displayXO[3] && displayXO[0] == displayXO[6] && displayXO[0] != "" ) {
-      setState(() {
-        result = "Player" + " " + displayXO[0] + " " + "wins";
-      });
-    }
-    if (displayXO[1] == displayXO[4] && displayXO[1] == displayXO[7] && displayXO[1] != "" ) {
-      setState(() {
-        result = "Player" + " " + displayXO[1] + " " + "wins";
-      });
-    }
-    if (displayXO[2] == displayXO[5] && displayXO[2] == displayXO[8] && displayXO[2] != "" ) {
-      setState(() {
-        result = "Player" + " " + displayXO[2] + " " + "wins";
-      });
-    } else if(filledBox == 9) {
-      setState(() {
-        result = "Tie";
-      });
-    }
-
   }
+
+  
 
 
 
