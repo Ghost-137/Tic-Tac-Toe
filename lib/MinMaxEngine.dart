@@ -20,6 +20,9 @@ class MinMaxState extends State<MinMax> {
 
   List<String> board = ['','','','','','','','',''];
 
+  var humanPlayer = "0";
+  var aiPlayer = "X";
+
 
 
   List<List<int>> winPatterns = [
@@ -33,7 +36,7 @@ class MinMaxState extends State<MinMax> {
   [2, 4, 6], // Diagonal from top-right to bottom-left
 ];
 
-  bool turnPLayerX = true;
+  bool turnPLayerX = false;
   String result = " ";
   Key _refreshKey = UniqueKey();
 
@@ -55,11 +58,10 @@ class MinMaxState extends State<MinMax> {
     setState(() {
       _refreshKey = UniqueKey();
       result = " ";
+      turnPLayerX = false;
     });
   }
 
-
-  
 
 
 
@@ -76,7 +78,7 @@ class MinMaxState extends State<MinMax> {
         }
       } else if (turnPLayerX == true) {
         if (board[index] == "") {
-          board[index] = turnPLayerX ? 'X' : '0';
+          board[index] = "X";
           turnPLayerX = !turnPLayerX;
           checkedWinner();
         }
@@ -87,22 +89,22 @@ class MinMaxState extends State<MinMax> {
 
   void makeAiMove()
   {
-    int bestMove = FindBestMove();
+    int bestMove = FindBestMove(board);
     Move(bestMove);
     
   }
 
-  int FindBestMove(){
+  int FindBestMove(List<String> currentBoard){
     int? bestMove;
     int bestScore = -1000;
 
     for (int i=0; i<9; i++) {
-      if (board[i] == "") {
-        board[i] = "X";
-        int score = MinMax(board, 0, false);
+      if (currentBoard[i] == "") {
+        currentBoard[i] = aiPlayer;
+        int Boardscore = MinMax(board, 0, false);
         board[i] = "";
-        if (score > bestScore) {
-          bestScore = score;
+        if (Boardscore > bestScore) {
+          bestScore = Boardscore;
           bestMove = i;
         }
       }
@@ -110,31 +112,103 @@ class MinMaxState extends State<MinMax> {
     return bestMove!;
   }
 
-  int evaluate(List<String> currentBoard) {
-  
 
-  for (var pattern in winPatterns) {
-    if (currentBoard[pattern[0]] == 'X' &&
-        currentBoard[pattern[1]] == 'X' &&
-        currentBoard[pattern[2]] == 'X') {
-      return 1; // Player X wins
-    } else if (currentBoard[pattern[0]] == 'O' &&
-        currentBoard[pattern[1]] == 'O' &&
-        currentBoard[pattern[2]] == 'O') {
-      return -1; // Player O wins
+
+
+
+  bool isMoveleft(List<String> board) {
+    for (int i=0; i<9; i++) {
+      if (board[i] == "") {
+        return true;
+      } 
     }
+    return false;
   }
 
-  return 0; // It's a draw
+
+
+  int evaluate(List<String> currentBoard) {
+
+    if(currentBoard[0] == currentBoard[1] && currentBoard[0] == currentBoard[2] && currentBoard[0] != "") {       //First Row
+      if (currentBoard[0] == aiPlayer) {
+        return 10;
+      } else if (currentBoard[0] == humanPlayer) {
+        return -10;
+      }
+    }
+
+    if(currentBoard[3] == currentBoard[4] && currentBoard[3] == currentBoard[5] && currentBoard[3] != "") {   //Second Row
+      if (currentBoard[3] == aiPlayer) {
+        return 10;
+      } else if (currentBoard[3] == humanPlayer) {
+        return -10;
+      }
+    }
+
+    if(currentBoard[6] == currentBoard[7] && currentBoard[6] == currentBoard[8] && currentBoard[6] != "") {       //Third Row
+      if (currentBoard[6] == aiPlayer) {
+        return 10;
+      } else if (currentBoard[6] == humanPlayer) {
+        return -10;
+      }
+    }
+
+    if(currentBoard[0] == currentBoard[3] && currentBoard[0] == currentBoard[6] && currentBoard[0] != "") {    //  First Column
+      if (currentBoard[0] == aiPlayer) {
+        return 10;
+      } else if (currentBoard[0] == humanPlayer) {
+        return -10;
+      }
+    }
+
+    if(currentBoard[1] == currentBoard[4] && currentBoard[1] == currentBoard[7] && currentBoard[1] != "") {    //  second Column
+      if (currentBoard[1] == aiPlayer) {
+        return 10;
+      } else if (currentBoard[1] == humanPlayer) {
+        return -10;
+      }
+    }
+
+    if(currentBoard[2] == currentBoard[5] && currentBoard[2] == currentBoard[8] && currentBoard[2] != "") {    //  third Column
+      if (currentBoard[2] == aiPlayer) {
+        return 10;
+      } else if (currentBoard[2] == humanPlayer) {
+        return -10;
+      }
+    }
+
+    if(currentBoard[0] == currentBoard[4] && currentBoard[0] == currentBoard[8] && currentBoard[0] != "") {    //  First Diagonals
+      if (currentBoard[0] == aiPlayer) {
+        return 10;
+      } else if (currentBoard[0] == humanPlayer) {
+        return -10;
+      }
+    }
+
+    if(currentBoard[2] == currentBoard[4] && currentBoard[2] == currentBoard[6] && currentBoard[2] != "") {    //  Second Diagonals
+      if (currentBoard[2] == aiPlayer) {
+        return 10;
+      } else if (currentBoard[2] == humanPlayer) {
+        return -10;
+      }
+    }
+    return 0;           //For Draw
+    
 }
 
 
   int MinMax(List<String> currentBoard, int depth, bool Max) {
-    int results = evaluate(currentBoard);
-    if (results == 1|| results == -1) {
-      return results;
+    int evaluateScore = evaluate(currentBoard);
+
+    if (evaluateScore == 10) {
+      return evaluateScore;
     }
-    if (results == 0) {
+
+    if (evaluateScore == -10) {
+      return evaluateScore;
+    }
+
+    if (isMoveleft(board) == false) {   
       return 0;
     }
 
@@ -142,12 +216,9 @@ class MinMaxState extends State<MinMax> {
       int bestScore = -1000;
       for (int i=0; i<9; i++) {
         if (currentBoard[i] == "") {
-          currentBoard[i] = "X";
-          int score  = MinMax(currentBoard, depth+1, false);
+          currentBoard[i] = aiPlayer;
+          bestScore = max(bestScore, MinMax(currentBoard, depth+1, !Max));
           currentBoard[i] = "";
-          bestScore = max(bestScore, score);
-
-
         }
       }
       return bestScore;
@@ -155,23 +226,21 @@ class MinMaxState extends State<MinMax> {
       int bestScore = 1000;
       for (int i=0; i<9; i++) {
         if (currentBoard[i] == "") {
-          currentBoard[i] = "X";
-          int score = MinMax(currentBoard, depth+1, true);
+          currentBoard[i] = humanPlayer;
+          bestScore = min(bestScore,  MinMax(currentBoard, depth+1, !Max));
           currentBoard[i] = "";
-          bestScore = max(bestScore, score);
         }
       }
       return bestScore;
     }
 
   }
-  
 
   void checkedWinner()
   {
     for (var winPattern in winPatterns) {
       if (board[winPattern[0]] == board[winPattern[1]] && board[winPattern[1]] == board[winPattern[2]] && board[winPattern[0]] != "") {
-        result = "Player "+ "fuck " + board[winPattern[0]] + " " + " wins";
+        result = "Player"+ " " + board[winPattern[0]] + " " + " wins";
       }
     }
   }
@@ -204,7 +273,11 @@ class MinMaxState extends State<MinMax> {
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
                           onTap: () {
-                            Move(index);
+                            if(turnPLayerX == false) {
+                              Move(index);
+                            } else if(turnPLayerX == true) {
+                              makeAiMove();
+                            }
                           },
                           child: Container(
                               decoration: BoxDecoration(
