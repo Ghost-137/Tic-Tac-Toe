@@ -10,18 +10,17 @@ class GameEngine extends StatefulWidget {
 }
 
 class GameState extends State<GameEngine> {
-
-  List<String> displayXO = ['','','','','','','','',''];
+  List<String> displayXO = ['', '', '', '', '', '', '', '', ''];
   List<List<int>> winPatterns = [
-  [0, 1, 2], // Top row
-  [3, 4, 5], // Middle row
-  [6, 7, 8], // Bottom row
-  [0, 3, 6], // Left column
-  [1, 4, 7], // Middle column
-  [2, 5, 8], // Right column
-  [0, 4, 8], // Diagonal from top-left to bottom-right
-  [2, 4, 6], // Diagonal from top-right to bottom-left
-];
+    [0, 1, 2], // Top row
+    [3, 4, 5], // Middle row
+    [6, 7, 8], // Bottom row
+    [0, 3, 6], // Left column
+    [1, 4, 7], // Middle column
+    [2, 5, 8], // Right column
+    [0, 4, 8], // Diagonal from top-left to bottom-right
+    [2, 4, 6], // Diagonal from top-right to bottom-left
+  ];
 
   String result = " ";
 
@@ -32,12 +31,17 @@ class GameState extends State<GameEngine> {
 
   bool turnO = true;
 
-  int filledBox = 1;
+  bool isMoveLeft(List<String> currentBoard) {
+    for (int i = 0; i < currentBoard.length; i++) {
+      if (currentBoard[i] == "") {
+        return true;
+      }
+    }
+    return false;
+  }
 
-
-  void resetButton()
-  {
-    for (int i=0; i<9; i++) {
+  void resetButton() {
+    for (int i = 0; i < 9; i++) {
       displayXO[i] = '';
     }
     setState(() {
@@ -46,57 +50,58 @@ class GameState extends State<GameEngine> {
     });
   }
 
-
-
   static var customFont = GoogleFonts.coiny(
-    textStyle: const TextStyle(
+      textStyle: const TextStyle(
     color: Colors.white,
     letterSpacing: 3,
     fontSize: 28,
   ));
 
-  
-
-
   void tapped(int index) {
     setState(() {
-      if (turnO == true && (displayXO[index] == "" && displayXO[index] != '0' && displayXO[index] != "X")) {
-        if (turnO == true && (displayXO[index] == '0' || displayXO[index] == 'X')) {
+      if (turnO == true &&
+          (displayXO[index] == "" &&
+              displayXO[index] != '0' &&
+              displayXO[index] != "X")) {
+        if (turnO == true &&
+            (displayXO[index] == '0' || displayXO[index] == 'X')) {
           turnO = true;
         } else {
-           displayXO[index] = "0";
-
-           turnO = !turnO;
-           filledBox++;
-           checkWinner();
+          displayXO[index] = "0";
+          if (!isMoveLeft(displayXO)) {
+            result = "Draw";
+          }
+          turnO = !turnO;
+          checkWinner();
         }
-       
-      } else if (turnO == false && (displayXO[index] == "" && displayXO[index] != '0' && displayXO[index] != "X")) {
-        if (turnO == false && (displayXO[index] == '0' || displayXO[index] == 'X')) {
+      } else if (turnO == false &&
+          (displayXO[index] == "" &&
+              displayXO[index] != '0' &&
+              displayXO[index] != "X")) {
+        if (turnO == false &&
+            (displayXO[index] == '0' || displayXO[index] == 'X')) {
           turnO = false;
         } else {
           displayXO[index] = "X";
+          if (!isMoveLeft(displayXO)) {
+            result = "Draw";
+          }
           turnO = !turnO;
-          filledBox++;
           checkWinner();
         }
       }
-      
     });
   }
 
-   void checkWinner()
-  {
+  void checkWinner() {
     for (var winPattern in winPatterns) {
-      if (displayXO[winPattern[0]] == displayXO[winPattern[1]] && displayXO[winPattern[1]] == displayXO[winPattern[2]] && displayXO[winPattern[0]] != "") {
-        result = "Player "+ " " + displayXO[winPattern[0]] + " " + " wins";
+      if (displayXO[winPattern[0]] == displayXO[winPattern[1]] &&
+          displayXO[winPattern[1]] == displayXO[winPattern[2]] &&
+          displayXO[winPattern[0]] != "") {
+        result = "Player " + " " + displayXO[winPattern[0]] + " " + " wins";
       }
     }
   }
-
-  
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -117,9 +122,8 @@ class GameState extends State<GameEngine> {
                 Expanded(
                   flex: 3,
                   child: GridView.builder(
-                    key: _refreshKey,
+                      key: _refreshKey,
                       itemCount: 9,
-                    
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3),
@@ -135,34 +139,28 @@ class GameState extends State<GameEngine> {
                                   border: Border.all(
                                       width: 5, color: SkinColor.primaryColor)),
                               child: Center(
-                                child: Text(
-                                  displayXO[index],
-                                  style: GoogleFonts.coiny(
-                                    textStyle: TextStyle(
+                                child: Text(displayXO[index],
+                                    style: GoogleFonts.coiny(
+                                        textStyle: TextStyle(
                                       fontSize: 64,
                                       color: SkinColor.primaryColor,
-                                    )
-                                  )
-                                ),
+                                    ))),
                               )),
                         );
                       }),
                 ),
-                 Expanded(
-                  child: Text(result, style: customFont,),
+                Expanded(
+                  child: Text(
+                    result,
+                    style: customFont,
+                  ),
                 ),
-
                 ElevatedButton(
-                  
                   onPressed: () {
                     resetButton();
                   },
-                  child:  Text(
-                    "Reset",
-                    style: GoogleFonts.coiny(
-                      color: Colors.black
-                    )
-                  ),
+                  child: Text("Reset",
+                      style: GoogleFonts.coiny(color: Colors.black)),
                 )
               ],
             ),
@@ -171,8 +169,4 @@ class GameState extends State<GameEngine> {
       ),
     );
   }
-
-
-  
 }
-
