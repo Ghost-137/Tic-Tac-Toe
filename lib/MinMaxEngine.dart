@@ -1,11 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tictactoe/gameColor/gameskin.dart';
 
 class MinMax extends StatefulWidget {
+  const MinMax({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return MinMaxState();
@@ -51,7 +53,7 @@ class MinMaxState extends State<MinMax> {
     });
   }
 
-  void Move(int index) {
+  void move(int index) {
     setState(() {
       if (turnPLayerX == false &&
           (board[index] == "" && board[index] != "0" && board[index] != "X")) {
@@ -67,6 +69,7 @@ class MinMaxState extends State<MinMax> {
 
           turnPLayerX = !turnPLayerX;
           checkedWinner();
+          makeAiMove();
         }
       } else if (turnPLayerX == true) {
         if (board[index] == "") {
@@ -82,18 +85,18 @@ class MinMaxState extends State<MinMax> {
   }
 
   void makeAiMove() {
-    int bestMove = FindBestMove(board);
-    Move(bestMove);
+    int bestMove = findBestMove(board);
+    move(bestMove);
   }
 
-  int FindBestMove(List<String> currentBoard) {
+  int findBestMove(List<String> currentBoard) {
     int? bestMove;
     int bestScore = -1000;
 
     for (int i = 0; i < 9; i++) {
       if (currentBoard[i] == "") {
         currentBoard[i] = aiPlayer;
-        int Boardscore = MinMax(board, 0, false);
+        int Boardscore = miniMax(board, 0, false);
         board[i] = "";
         if (Boardscore > bestScore) {
           bestScore = Boardscore;
@@ -105,7 +108,7 @@ class MinMaxState extends State<MinMax> {
   }
 
   bool isMoveleft(List<String> board) {
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 8; i++) {
       if (board[i] == "") {
         return true;
       }
@@ -204,7 +207,7 @@ class MinMaxState extends State<MinMax> {
     return 0; //For Draw
   }
 
-  int MinMax(List<String> currentBoard, int depth, bool Max) {
+  int miniMax(List<String> currentBoard, int depth, bool Max) {
     int evaluateScore = evaluate(currentBoard);
 
     if (evaluateScore == 10) {
@@ -224,7 +227,7 @@ class MinMaxState extends State<MinMax> {
       for (int i = 0; i < 9; i++) {
         if (currentBoard[i] == "") {
           currentBoard[i] = aiPlayer;
-          bestScore = max(bestScore, MinMax(currentBoard, depth + 1, !Max));
+          bestScore = max(bestScore, miniMax(currentBoard, depth + 1, !Max));
           currentBoard[i] = "";
         }
       }
@@ -234,7 +237,7 @@ class MinMaxState extends State<MinMax> {
       for (int i = 0; i < 9; i++) {
         if (currentBoard[i] == "") {
           currentBoard[i] = humanPlayer;
-          bestScore = min(bestScore, MinMax(currentBoard, depth + 1, !Max));
+          bestScore = min(bestScore, miniMax(currentBoard, depth + 1, !Max));
           currentBoard[i] = "";
         }
       }
@@ -280,9 +283,7 @@ class MinMaxState extends State<MinMax> {
                         return GestureDetector(
                           onTap: () {
                             if (turnPLayerX == false) {
-                              Move(index);
-                            } else if (turnPLayerX == true) {
-                              makeAiMove();
+                              move(index);
                             }
                           },
                           child: Container(
